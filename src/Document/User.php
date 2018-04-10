@@ -2,6 +2,8 @@
 
 namespace App\Document;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * @MongoDB\Document(db="test", collection="users") 
  * 
@@ -15,16 +17,19 @@ class User
 
     /**
      * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
      */
     protected $email;
 
     /**
      * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
      */
     protected $firstName;
 
     /**
      * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
      */
     protected $lastName;
 
