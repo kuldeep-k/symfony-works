@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
 use App\Document\User;
@@ -43,11 +44,19 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/manage", name="userManage")
+     * @Route("/user/manage/{id}", name="userManage", defaults={"id" = null})
      */
-    public function manage(Request $request)
+    public function manage($id, Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
-        $user = new User();
+        $documentManager = $this->get('doctrine_mongodb')
+        ->getManager();
+
+        if($id === null) {
+            $user = new User();
+        } else {
+            $repository = $documentManager->getRepository(User::class);
+            $user = $repository->find($id);
+        }   
 
         $form = $this->createForm(UserForm::class, $user);
         
@@ -56,8 +65,11 @@ class UserController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // $form->getData() holds the submitted values
             // but, the original `$task` variable has also been updated
-            $task = $form->getData();
-
+            $user = $form->getData();
+            $user->setPassword($passwordEncoder->encodePassword($user, $user->getPassword()));
+            
+            $documentManager->persist($user);
+            $documentManager->flush();
             // ... perform some action, such as saving the task to the database
             // for example, if Task is a Doctrine entity, save it!
             // $entityManager = $this->getDoctrine()->getManager();
@@ -71,13 +83,5 @@ class UserController extends Controller
             'form' => $form->createView()
         ]);
 
-        /*$paginator = new Pagerfanta(new DoctrineORMAdapter($query));
-        $paginator->setMaxPerPage(Post::NUM_ITEMS);
-        $paginator->setCurrentPage($page);
-
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
-            'users' => $paginator
-        ]);*/
     }
 }
