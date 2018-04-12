@@ -3,12 +3,13 @@
 namespace App\Document;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @MongoDB\Document(db="test", collection="users") 
  * 
  */
-class User
+class User implements UserInterface
 {
     /**
      * @MongoDB\Id
@@ -32,6 +33,12 @@ class User
      * @Assert\NotBlank()
      */
     protected $lastName;
+
+    /**
+     * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
+     */
+    protected $password;
 
     /**
      * @MongoDB\Field(type="date")
@@ -90,6 +97,14 @@ class User
       $this->lastName = $lastName;
     }
     
+    public function getPassword() {
+      return $this->password;
+    }
+
+    public function setPassword($password) {
+      $this->password = $password;
+    }
+
     public function getDob() {
       return $this->dob;
     }
@@ -114,16 +129,36 @@ class User
       $this->occupation = $occupation;
     }
 
-    public function __get($var) {
-      if(property_exists($this, $var)) {
-        return $this->$var;
-      }
-      return null;
+    public function getCurrentLocation() {
+      return $this->currentLocation;
     }
-    
-    public function __set($var, $value) {
-      if(property_exists($this, $var)) {
-        $this->$var = $value;
-      }
+
+    public function setCurrentLocation($currentLocation) {
+      $this->currentLocation = $currentLocation;
     }
+
+    public function getPermLocation() {
+      return $this->permLocation;
+    }
+
+    public function setPermLocation($permLocation) {
+      $this->permLocation = $permLocation;
+    }
+
+    public function getRoles() {
+      
+    }
+
+    public function getSalt() {
+      
+    }
+
+    public function getUsername() {
+      return $this->email;      
+    }
+
+    public function eraseCredentials() {
+      
+    }
+
 }
